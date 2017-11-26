@@ -49,64 +49,17 @@ public class TemplateXML
             return;
         }
 
-        
-    
-        int p = 0;
-        int d = 0;
-
         foreach(Scene s in scenes)
         {
             if (s != null)
             {
                 if (s.sceneNumber == newSceneNumber)
                 {
-                    foreach (Dialog e in scenes[p].dialogs)
-                    {
-
-                        if (e.charName1 == dialogToAdd.charName1 && e.charName2 == dialogToAdd.charName2)
-                        {
-                            scenes[p].dialogs[d] = dialogToAdd;
-                            return;
-                        }
-
-                        d++;
-                    }
-
-                    Dialog[] tempD = scenes[p].dialogs;
-                    scenes[p].dialogs = new Dialog[tempD.Length + 1];
-
-                    int i = 0;
-
-                    foreach(Dialog t in tempD)
-                    {
-                        scenes[p].dialogs[i] = t;
-
-                        i++;
-                    }
-
-                    scenes[p].dialogs[i] = dialogToAdd;
-
+                    s.AddDialog(dialogToAdd);
                     return;
                 }
             }
-            p++;
         }
-
-        Scene[] temp = scenes;
-
-        scenes = new Scene[temp.Length + 1];
-
-        for (int i = 0; i < temp.Length; i++)
-        {
-            scenes[i] = temp[i];
-        }
-
-        Debug.Log(scenes.Length);
-
-        Debug.Log(temp.Length);
-
-        scenes[temp.Length] = new Scene(newSceneNumber, new Dialog[] { dialogToAdd });
-
     }
 
     public Dialog[] GetDialog(int sceneNumber)
@@ -117,6 +70,8 @@ public class TemplateXML
         {
             if (d.sceneNumber == sceneNumber)
             {
+                foundDialog = new Dialog[d.dialogs.Length];
+
                 foundDialog = d.dialogs;
             }
         }
@@ -162,12 +117,38 @@ public class Scene
 
         dialogs = new Dialog[temp.Length + 1];
 
-        for (int i = 0; i < temp.Length-1; i++)
+        for (int i = 0; i < temp.Length; i++)
         {
             dialogs[i] = temp[i];
         }
 
         dialogs[dialogs.Length - 1] = dialog;
+
+    }
+
+
+    public void AddDialog(Dialog dialog)
+    {
+        if (dialogs == null)
+        {
+            dialogs = new Dialog[1];
+            dialogs[0] = dialog;
+            sceneNumber = 0;
+
+            return;
+        }
+
+        Dialog[] temp = dialogs;
+
+        dialogs = new Dialog[temp.Length + 1];
+
+        for (int i = 0; i < temp.Length; i++)
+        {
+            dialogs[i] = temp[i];
+        }
+
+        dialogs[temp.Length] = dialog;
+        temp = null;
 
     }
 }
@@ -177,7 +158,7 @@ public class Dialog
     public Dialog()
     {
         dialogNumber = 0;
-        texts = new string[] { "no text" };
+        line =  "no text" ;
         pictureName1 = "no picture";
         pictureName2 = "no picture";
         charName1 = Characters.Chicka;
@@ -193,8 +174,8 @@ public class Dialog
     [XmlElement("DialogNumber")]
     public int dialogNumber;
 
-    [XmlArray("Texts")]
-    public string[] texts;
+    [XmlElement("Line")]
+    public string line;
 
     [XmlElement("PictureName1")]
     public string pictureName1;

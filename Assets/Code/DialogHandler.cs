@@ -9,7 +9,6 @@ public class DialogHandler : MonoBehaviour
     TemplateXML fileInfo;
     XmlSerializer xmlDocument;
 
-    int currentLineNumber = 0;
     int currentDialogNumber = 0;
 
     Dialog[] currentDialog;
@@ -39,7 +38,7 @@ public class DialogHandler : MonoBehaviour
         currentDialog = fileInfo.GetDialog(sceneNumber);
 
         textCanvas.Init();
-        textCanvas.SetText(currentDialog[currentDialogNumber].texts[currentLineNumber]);
+        textCanvas.SetText(currentDialog[currentDialogNumber].line);
         textCanvas.SetCharName(0, currentDialog[currentDialogNumber].charName1);
         textCanvas.SetCharName(1, currentDialog[currentDialogNumber].charName2);
 
@@ -53,14 +52,10 @@ public class DialogHandler : MonoBehaviour
 
     public void NextLine()
     {
-        if (currentLineNumber < currentDialog[currentDialogNumber].texts.Length-1)
-        {
-            currentLineNumber++;
-        }
-        else if (currentDialogNumber < currentDialog.Length-1)
+
+        if (currentDialogNumber < currentDialog.Length-1)
         {
             currentDialogNumber++;
-            currentLineNumber = 0;
         }
         else
         {
@@ -68,10 +63,9 @@ public class DialogHandler : MonoBehaviour
             //GoToNewScene()
             sceneNumber++;
             currentDialogNumber = 0;
-            currentLineNumber = 0;
         }
 
-        textCanvas.SetText(currentDialog[currentDialogNumber].texts[currentLineNumber]);
+        textCanvas.SetText(currentDialog[currentDialogNumber].line);
         textCanvas.SetCharName(0, currentDialog[currentDialogNumber].charName1);
         textCanvas.SetCharName(1, currentDialog[currentDialogNumber].charName2);
 

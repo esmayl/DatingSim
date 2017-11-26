@@ -228,7 +228,6 @@
     <Compile Include="Assets\Code\TextHandler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Dialog\dialog.xml" />
     <None Include="Assets\Necromancer GUI\Kingthings.txt" />
     <None Include="Assets\Necromancer GUI\Readme.txt" />
     <None Include="Assets\Standard Assets\Effects\Projectors\Guidelines.txt" />

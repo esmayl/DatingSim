@@ -137,7 +137,7 @@ public class DialogSaver : EditorWindow
 
         try
         {
-            file = new FileStream(fileLocation, FileMode.Open); 
+            file = new FileStream(fileLocation, FileMode.Open);
 
         }
         catch (Exception e)
@@ -147,57 +147,43 @@ public class DialogSaver : EditorWindow
             file = new FileStream(fileLocation, FileMode.OpenOrCreate);
         }
 
+        //parsing string 
         if (sceneNumberString.Length > 0)
         {
             sceneNumber = int.Parse(sceneNumberString);
         }
 
-        if(dialogNumberString.Length > 0)
+        if (dialogNumberString.Length > 0)
         {
             dialogNumber = int.Parse(dialogNumberString);
         }
 
+
+        //try to load existing data
         try
         {
             readData = (TemplateXML)xmlDocument.Deserialize(file);
         }
         catch (Exception e)
         {
+            //load failed , create new file
             Debug.Log(e.Message);
 
-            readData = new TemplateXML();
+            firstData = new TemplateXML();
 
-            if (readData == null)
+            for (int i = 0; i < textFields.Length; i++)
             {
-                Debug.Log("Creating file");
-
-                firstData = new TemplateXML();
-
-                Dialog temp = new Dialog();
-                temp.charName1 = (Characters)selectedChar1;
-                temp.charName2 = (Characters)selectedChar2;
-                temp.dialogNumber = 0;
-                temp.pictureName1 = ((Characters)selectedChar1).ToString();
-                temp.pictureName2 = ((Characters)selectedChar2).ToString();
-
-                Debug.Log("Created dialog");
-
-                if (textFields.Length > 0)
-                {
-                    temp.texts = new string[textFields.Length];
-                    temp.texts = textFields;
-                }
-                else
-                {
-                    temp.texts = new string[] { "empty" };
-                }
+                Dialog temp = CreateNewDialog(selectedChar1, selectedChar2, i, textFields[i]);
 
                 firstData.Add(sceneNumber, temp);
 
-                Debug.Log("Adding dialog");
-
             }
 
+            xmlDocument.Serialize(file, firstData);
+
+            file.Close();
+
+            return;
         }
 
         if (readData != null)
@@ -211,111 +197,65 @@ public class DialogSaver : EditorWindow
             catch (Exception e)
             {
                 Debug.Log(e.Message);
+
+                temp = new Dialog[textFields.Length];
+                int i = 0;
+
+                foreach (string item in textFields)
+                {
+                    temp[i] = CreateNewDialog(selectedChar1, selectedChar2, i, textFields[i]);
+                    readData.Add(sceneNumber, temp);
+                }
+
+                xmlDocument.Serialize(file, readData);
+                file.Close();
+                return;
             }
 
-            if (temp != null)
+            int p = 0;
+            for (int i = 0; i < temp.Length; i++)
             {
-
-                for (int i = 0; i < temp.Length; i++)
+                if (temp[i].dialogNumber == dialogNumber)
                 {
-                    
-                    if (temp[i].charName1 == (Characters)selectedChar1 && temp[i].charName2 == (Characters)selectedChar2)
-                    {
-
-                        if (dialogNumber == temp[i].dialogNumber)
-                        {
-
-                            Debug.Log("Readdata : " + temp[i].texts[0]);
-
-                            if (textFields.Length > 0)
-                            {
-                                temp[i].texts = new string[textFields.Length];
-                                temp[i].texts = textFields;
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            Dialog[] tempCopy = temp;
-                            temp = new Dialog[tempCopy.Length + 1];
-
-                            int p = 0;
-                            foreach (Dialog d in tempCopy)
-                            {
-                                temp[p] = d;
-                                p++;
-                            }
-                            Dialog newDialog = new Dialog();
-                            newDialog.charName1 = ((Characters)selectedChar1);
-                            newDialog.charName2 = ((Characters)selectedChar2);
-                            newDialog.dialogNumber = dialogNumber;
-                            newDialog.pictureName1 = ((Characters)selectedChar1).ToString();
-                            newDialog.pictureName2 = ((Characters)selectedChar2).ToString();
-                            newDialog.texts = textFields;
-
-                            temp[p] = newDialog;
-
-                        }
-                    }
+                    temp[i] = CreateNewDialog(selectedChar1, selectedChar2, dialogNumber, textFields[0]);
                 }
             }
-           
+            
+            //replace exisiting dialog and save it
 
-
-            if (temp == null)
-            {
-                Debug.Log("Creating new dialog");
-
-                temp = new Dialog[]
-                {
-                    new Dialog()
-                };
-
-
-                temp[0].charName1 = (Characters)selectedChar1;
-                temp[0].charName2 = (Characters)selectedChar2;
-                temp[0].dialogNumber = 0;
-                temp[0].pictureName1 = ((Characters)selectedChar1).ToString();
-                temp[0].pictureName2 = ((Characters)selectedChar2).ToString();
-
-                if (textFields.Length > 0)
-                {
-                    temp[0].texts = new string[textFields.Length];
-                    temp[0].texts = textFields;
-                }
-            }
-
-            Debug.Log(temp[0].charName1);
-
-
-            file.SetLength(0);
-            file.Flush();
-
-            readData.Add(sceneNumber, temp);
-        }
-        else
-        {
-            Debug.Log("Cant use xmlreader");
         }
 
         Debug.Log("Saving data");
 
-        if (firstData != null)
-        {
-            xmlDocument.Serialize(file, firstData);
-        }
-        else
-        {
-            xmlDocument.Serialize(file, readData);
-        }
-        file.Close();
-
-        readData = null;
-        firstData = null;
-
+        //if (firstData != null)
+        //{
+        //    xmlDocument.Serialize(file, firstData);
+        //}
+        //else
+        //{
+        //    xmlDocument.Serialize(file, readData);
+        //}
+        //file.Close();
+        //
+        //readData = null;
+        //firstData = null;
+        //
         saving = false;
     }
 
+    private Dialog CreateNewDialog(int char1, int char2, int dialogNr,string line)
+    {
+        Dialog newDialog = new Dialog
+        {
+            charName1 = (Characters)char1,
+            charName2 = (Characters)char2,
+            dialogNumber = dialogNr,
+            pictureName1 = ((Characters)char1).ToString(),
+            pictureName2 = ((Characters)char2).ToString(),
+            line = line
+        };
+        return newDialog;
+    }
 }
 
 
